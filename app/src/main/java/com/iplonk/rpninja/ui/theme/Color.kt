@@ -6,7 +6,8 @@ val LightGray = Color(0xFFBDC3C7)
 val Red = Color(0xFFE74C3C)
 val Orange = Color(0xFFFF6F00)
 val Green = Color(0xFF4CAF50)
-
+val LightBlue = Color(0xFF5DADE2)
+val DarkRed = Color(0xFFC0392B)
 
 // Light Theme Colors
 val LightBackground = Color(0xFFF4F4F4)  // Off-White or Light Gray

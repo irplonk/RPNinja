@@ -3,12 +3,14 @@ package com.iplonk.rpninja.ui
 import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.Color
 import com.iplonk.rpninja.domain.CalculatorAction
-import com.iplonk.rpninja.R
 import com.iplonk.rpninja.domain.Operator
+import com.iplonk.rpninja.ui.theme.DarkRed
 import com.iplonk.rpninja.ui.theme.Green
+import com.iplonk.rpninja.ui.theme.LightBlue
 import com.iplonk.rpninja.ui.theme.LightGray
 import com.iplonk.rpninja.ui.theme.Orange
 import com.iplonk.rpninja.ui.theme.Red
+import com.iplonk.rpninja.R
 
 data class CalculatorUiAction(
 	@StringRes val symbol: Int,
@@ -73,7 +75,7 @@ val calculatorUiActions = listOf(
 		backgroundColor = LightGray,
 	),
 	CalculatorUiAction(
-		symbol = R.string.subtract_symbol,
+		symbol = R.string.divide_symbol,
 		action = CalculatorAction.Operation(Operator.SUBTRACT),
 		backgroundColor = Orange,
 	),
@@ -83,9 +85,19 @@ val calculatorUiActions = listOf(
 		backgroundColor = LightGray,
 	),
 	CalculatorUiAction(
+		symbol = R.string.space_symbol,
+		action = CalculatorAction.Space,
+		backgroundColor = LightBlue,
+	),
+	CalculatorUiAction(
 		symbol = R.string.calculate_symbol,
-		action = CalculatorAction.Operation(Operator.MULTIPLY),
+		action = CalculatorAction.Calculate,
 		backgroundColor = Green,
+	),
+	CalculatorUiAction(
+		symbol = R.string.add_symbol,
+		action = CalculatorAction.Operation(Operator.ADD),
+		backgroundColor = Orange,
 	),
 	CalculatorUiAction(
 		symbol = R.string.clear_symbol,
@@ -93,8 +105,8 @@ val calculatorUiActions = listOf(
 		backgroundColor = Red,
 	),
 	CalculatorUiAction(
-		symbol = R.string.add_symbol,
-		action = CalculatorAction.Operation(Operator.ADD),
-		backgroundColor = Orange,
+		symbol = R.string.delete_symbol,
+		action = CalculatorAction.Delete,
+		backgroundColor = DarkRed,
 	),
 )

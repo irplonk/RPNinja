@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">RPNinja</string>
-    <string name="delete_symbol">Del</string>
+    <string name="delete_symbol">D</string>
     <string name="clear_symbol">AC</string>
     <string name="space_symbol">Sp</string>
     <string name="decimal_symbol">.</string>
@@ -20,4 +20,5 @@
     <string name="nine">9</string>
     <string name="zero">0</string>
     <string name="divide_by_zero_error_message">You can\'t divide by zero</string>
+    <string name="invalid_expression_message">Invalid</string>
 </resources>
