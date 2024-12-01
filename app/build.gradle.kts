@@ -1,7 +1,11 @@
+import org.gradle.kotlin.dsl.android
+
 plugins {
 	alias(libs.plugins.android.application)
+	alias(libs.plugins.android.hilt)
 	alias(libs.plugins.kotlin.android)
 	alias(libs.plugins.kotlin.compose)
+	alias(libs.plugins.kapt)
 }
 
 android {
@@ -11,7 +15,7 @@ android {
 	defaultConfig {
 		applicationId = "com.iplonk.rpninja"
 		minSdk = 29
-		targetSdk = 34
+		targetSdk = 35
 		versionCode = 1
 		versionName = "1.0"
 
@@ -36,6 +40,10 @@ android {
 	}
 }
 
+kapt {
+	correctErrorTypes = true
+}
+
 dependencies {
 
 	implementation(libs.androidx.core.ktx)
@@ -47,7 +55,11 @@ dependencies {
 	implementation(libs.androidx.ui.graphics)
 	implementation(libs.androidx.ui.tooling.preview)
 	implementation(libs.androidx.material3)
+	implementation(libs.hilt)
+	kapt(libs.hilt.compiler)
 	testImplementation(libs.junit)
+	testImplementation(libs.mockk.android)
+	testImplementation(libs.mockk.agent)
 	androidTestImplementation(libs.androidx.junit)
 	androidTestImplementation(libs.androidx.espresso.core)
 	androidTestImplementation(platform(libs.androidx.compose.bom))

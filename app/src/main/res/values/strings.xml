@@ -1,14 +1,13 @@
 <resources>
     <string name="app_name">RPNinja</string>
-    <string name="delete_symbol">D</string>
-    <string name="clear_symbol">AC</string>
-    <string name="space_symbol">Sp</string>
-    <string name="decimal_symbol">.</string>
-    <string name="divide_symbol">÷</string>
-    <string name="add_symbol">+</string>
-    <string name="subtract_symbol">-</string>
-    <string name="multiple_symbol">x</string>
-    <string name="calculate_symbol">=</string>
+    <string name="clear">AC</string>
+    <string name="space">␣</string>
+    <string name="decimal">.</string>
+    <string name="divide">÷</string>
+    <string name="add">+</string>
+    <string name="subtract">-</string>
+    <string name="multiple">x</string>
+    <string name="calculate">=</string>
     <string name="one">1</string>
     <string name="two">2</string>
     <string name="three">3</string>
@@ -19,6 +18,7 @@
     <string name="eight">8</string>
     <string name="nine">9</string>
     <string name="zero">0</string>
+    <string name="delete_content_description">backspace icon</string>
     <string name="divide_by_zero_error_message">You can\'t divide by zero</string>
     <string name="invalid_expression_message">Invalid</string>
 </resources>

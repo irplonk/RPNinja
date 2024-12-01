@@ -1,112 +1,114 @@
 package com.iplonk.rpninja.ui
 
 import androidx.annotation.StringRes
+import androidx.compose.material3.Icon
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import com.iplonk.rpninja.R
 import com.iplonk.rpninja.domain.CalculatorAction
 import com.iplonk.rpninja.domain.Operator
-import com.iplonk.rpninja.ui.theme.DarkRed
-import com.iplonk.rpninja.ui.theme.Green
-import com.iplonk.rpninja.ui.theme.LightBlue
 import com.iplonk.rpninja.ui.theme.LightGray
 import com.iplonk.rpninja.ui.theme.Orange
-import com.iplonk.rpninja.ui.theme.Red
-import com.iplonk.rpninja.R
 
-data class CalculatorUiAction(
-	@StringRes val symbol: Int,
-	val action: CalculatorAction,
-	val backgroundColor: Color,
+sealed interface CalculatorUiAction {
+	val action: CalculatorAction
+	val backgroundColor: Color
+
+	data class NumberPadUiAction(
+		@StringRes val text: Int? = null,
+		override val action: CalculatorAction,
+		val content: @Composable () -> Unit = {},
+	) : CalculatorUiAction {
+		override val backgroundColor: Color = LightGray
+	}
+
+	data class ArithmeticOperatorAction(
+		@StringRes val text: Int,
+		override val action: CalculatorAction.Operation,
+	) : CalculatorUiAction {
+		override val backgroundColor: Color = Orange
+	}
+}
+
+val arithmeticOperationActions = listOf(
+	CalculatorUiAction.ArithmeticOperatorAction(
+		text = R.string.divide,
+		action = CalculatorAction.Operation(Operator.DIVIDE),
+	),
+	CalculatorUiAction.ArithmeticOperatorAction(
+		text = R.string.multiple,
+		action = CalculatorAction.Operation(Operator.MULTIPLY),
+	),
+	CalculatorUiAction.ArithmeticOperatorAction(
+		text = R.string.subtract,
+		action = CalculatorAction.Operation(Operator.SUBTRACT),
+	),
+	CalculatorUiAction.ArithmeticOperatorAction(
+		text = R.string.add,
+		action = CalculatorAction.Operation(Operator.ADD),
+	)
 )
 
-val calculatorUiActions = listOf(
-	CalculatorUiAction(
-		symbol = R.string.seven,
+val remainingActions = listOf(
+
+)
+
+
+val numberUiActions = listOf(
+	CalculatorUiAction.NumberPadUiAction(
+		text = R.string.seven,
 		action = CalculatorAction.Number(7),
-		backgroundColor = LightGray,
 	),
-	CalculatorUiAction(
-		symbol = R.string.eight,
+	CalculatorUiAction.NumberPadUiAction(
+		text = R.string.eight,
 		action = CalculatorAction.Number(8),
-		backgroundColor = LightGray,
 	),
-	CalculatorUiAction(
-		symbol = R.string.nine,
+	CalculatorUiAction.NumberPadUiAction(
+		text = R.string.nine,
 		action = CalculatorAction.Number(9),
-		backgroundColor = LightGray,
 	),
-	CalculatorUiAction(
-		symbol = R.string.divide_symbol,
-		action = CalculatorAction.Operation(Operator.DIVIDE),
-		backgroundColor = Orange
-	),
-	CalculatorUiAction(
-		symbol = R.string.four,
+	CalculatorUiAction.NumberPadUiAction(
+		text = R.string.four,
 		action = CalculatorAction.Number(4),
-		backgroundColor = LightGray,
 	),
-	CalculatorUiAction(
-		symbol = R.string.five,
+	CalculatorUiAction.NumberPadUiAction(
+		text = R.string.five,
 		action = CalculatorAction.Number(5),
-		backgroundColor = LightGray,
 	),
-	CalculatorUiAction(
-		symbol = R.string.six,
+	CalculatorUiAction.NumberPadUiAction(
+		text = R.string.six,
 		action = CalculatorAction.Number(6),
-		backgroundColor = LightGray,
 	),
-	CalculatorUiAction(
-		symbol = R.string.multiple_symbol,
-		action = CalculatorAction.Operation(Operator.MULTIPLY),
-		backgroundColor = Orange,
-	),
-	CalculatorUiAction(
-		symbol = R.string.one,
+	CalculatorUiAction.NumberPadUiAction(
+		text = R.string.one,
 		action = CalculatorAction.Number(1),
-		backgroundColor = LightGray,
 	),
-	CalculatorUiAction(
-		symbol = R.string.two,
+	CalculatorUiAction.NumberPadUiAction(
+		text = R.string.two,
 		action = CalculatorAction.Number(2),
-		backgroundColor = LightGray,
 	),
-	CalculatorUiAction(
-		symbol = R.string.three,
+	CalculatorUiAction.NumberPadUiAction(
+		text = R.string.three,
 		action = CalculatorAction.Number(3),
-		backgroundColor = LightGray,
 	),
-	CalculatorUiAction(
-		symbol = R.string.divide_symbol,
-		action = CalculatorAction.Operation(Operator.SUBTRACT),
-		backgroundColor = Orange,
-	),
-	CalculatorUiAction(
-		symbol = R.string.zero,
+	CalculatorUiAction.NumberPadUiAction(
+		text = R.string.zero,
 		action = CalculatorAction.Number(0),
-		backgroundColor = LightGray,
 	),
-	CalculatorUiAction(
-		symbol = R.string.space_symbol,
-		action = CalculatorAction.Space,
-		backgroundColor = LightBlue,
+	CalculatorUiAction.NumberPadUiAction(
+		text = R.string.decimal,
+		action = CalculatorAction.Decimal,
 	),
-	CalculatorUiAction(
-		symbol = R.string.calculate_symbol,
-		action = CalculatorAction.Calculate,
-		backgroundColor = Green,
-	),
-	CalculatorUiAction(
-		symbol = R.string.add_symbol,
-		action = CalculatorAction.Operation(Operator.ADD),
-		backgroundColor = Orange,
-	),
-	CalculatorUiAction(
-		symbol = R.string.clear_symbol,
-		action = CalculatorAction.Clear,
-		backgroundColor = Red,
-	),
-	CalculatorUiAction(
-		symbol = R.string.delete_symbol,
+	CalculatorUiAction.NumberPadUiAction(
+		text = null,
 		action = CalculatorAction.Delete,
-		backgroundColor = DarkRed,
+		content = {
+			Icon(
+				painter = painterResource(R.drawable.baseline_backspace_24),
+				contentDescription = stringResource(R.string.delete_content_description),
+			)
+		}
 	),
 )

@@ -4,22 +4,28 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,15 +41,10 @@ fun CalculatorScreen(
 	val uiState by viewModel.uiState.collectAsState()
 	Box(modifier = Modifier.fillMaxSize()) {
 		Column(modifier = Modifier.align(Alignment.BottomCenter)) {
-			Text(
-				modifier = Modifier.fillMaxWidth(),
-				text = uiState.currentExpression,
-				fontSize = 80.sp,
-				textAlign = TextAlign.End
-			)
+			CalculatorExpression(uiState.currentExpression)
 			when (val result = uiState.result) {
 				is ExpressionResult.Number -> Text(
-					text = result.number,
+					text = result.number.toString(),
 					fontSize = 40.sp,
 				)
 				is ExpressionResult.InvalidExpression -> Text(
@@ -56,17 +57,38 @@ fun CalculatorScreen(
 				)
 				is ExpressionResult.EmptyExpression, null -> {}
 			}
-			CalculatorButtonGrid(
-				uiActions = calculatorUiActions,
-				onButtonClick = viewModel::onAction,
-			)
+			CalculatorButtonGrid(onAction = viewModel::onAction)
 		}
 	}
 }
 
 @Composable
 private fun CalculatorButtonGrid(
-	uiActions: List<CalculatorUiAction>,
+	onAction: (CalculatorAction) -> Unit,
+) {
+	Row {
+		Column {
+			CalculatorNumberPadGrid(onAction)
+		}
+		CalculatorArithmeticOperatorButtons(onAction)
+	}
+}
+
+@Composable
+private fun CalculatorArithmeticOperatorButtons(
+	onAction: (CalculatorAction) -> Unit,
+) {
+	LazyColumn {
+		items(arithmeticOperationActions) { action ->
+			CalculatorButton(action, onAction) {
+				Text(text = stringResource(action.text), fontSize = 36.sp)
+			}
+		}
+	}
+}
+
+@Composable
+private fun CalculatorNumberPadGrid(
 	onButtonClick: (CalculatorAction) -> Unit
 ) {
 	LazyVerticalGrid(
@@ -76,31 +98,50 @@ private fun CalculatorButtonGrid(
 		verticalArrangement = Arrangement.spacedBy(4.dp),
 		horizontalArrangement = Arrangement.spacedBy(4.dp)
 	) {
-		items(uiActions) { uiAction ->
-			CalculatorButton(
-				backgroundColor = uiAction.backgroundColor,
-				symbol = uiAction.symbol,
-			) {
-				onButtonClick(uiAction.action)
+		items(numberUiActions) { action ->
+			CalculatorButton(action, onButtonClick) {
+				if (action.text != null) {
+					Text(text = stringResource(action.text), fontSize = 36.sp)
+				} else {
+					action.content()
+				}
 			}
 		}
 	}
 }
 
 @Composable
+private fun CalculatorExpression(expression: String) {
+	BasicTextField(
+		value = expression,
+		onValueChange = {},
+		textStyle = TextStyle(
+			fontSize = 80.sp,
+			color = MaterialTheme.colorScheme.onSecondaryContainer,
+			textAlign = TextAlign.End
+		),
+		maxLines = 1,
+		singleLine = true,
+		cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+		readOnly = true,
+		modifier = Modifier.fillMaxWidth()
+	)
+}
+
+@Composable
 private fun CalculatorButton(
-	backgroundColor: Color,
-	symbol: String,
-	onClick: () -> Unit
+	uiAction: CalculatorUiAction,
+	onClick: (CalculatorAction) -> Unit,
+	content: @Composable () -> Unit,
 ) {
 	Button(
 		modifier = Modifier
 			.aspectRatio(1f),
-		colors = ButtonDefaults.buttonColors(containerColor = backgroundColor),
-		onClick = onClick
+		colors = ButtonDefaults.buttonColors(containerColor = uiAction.backgroundColor),
+		onClick = { onClick(uiAction.action) }
 	) {
-		Text(text = symbol, fontSize = 36.sp)
+		content()
 	}
 }
 
-const val BUTTONS_PER_ROW = 4
+const val BUTTONS_PER_ROW = 3

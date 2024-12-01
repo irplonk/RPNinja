@@ -1,42 +1,51 @@
 package com.iplonk.rpninja.domain
 
-import androidx.core.text.isDigitsOnly
 import com.iplonk.rpninja.ui.ExpressionResult
+import javax.inject.Inject
 
-class RpnCalculator {
 
+class RpnCalculator @Inject constructor() {
+
+	// TODO: Should I break this up more?
 	fun calculate(expression: String, delimiter: Char): ExpressionResult {
+		if (expression.isBlank()) return ExpressionResult.EmptyExpression
 		val splitExpression = expression.split(delimiter)
-		if (splitExpression.isEmpty()) {
-			return ExpressionResult.EmptyExpression
-		}
+
 		val numberStack: ArrayDeque<Double> = ArrayDeque()
-		for (value in splitExpression) {
-			if (value.isDigitsOnly()) {
-				numberStack.add(value.toDouble())
+
+		for (token in splitExpression) {
+			val tokenAsDouble = token.toDoubleOrNull()
+			if (tokenAsDouble != null) {
+				numberStack.add(tokenAsDouble)
 			} else {
-				val number1 = numberStack.removeFirstOrNull()
-				val number2 = numberStack.removeFirstOrNull()
-				if (number1 != null && number2 != null) {
-					val result = when (value) {
-						Operator.SUBTRACT.symbol -> number1 - number2
-						Operator.MULTIPLY.symbol -> number1 * number2
-						Operator.ADD.symbol -> number1 + number2
-						Operator.DIVIDE.symbol -> {
-							if (number2 == 0.0) {
-								return ExpressionResult.DivideByZeroError
-							} else {
-								number1 / number2
-							}
-						}
-						else -> return ExpressionResult.InvalidExpression
-					}
-					numberStack.add(result)
-				} else {
+				val operand2 = numberStack.removeLastOrNull()
+				val operand1 = numberStack.removeLastOrNull()
+				if (operand1 == null || operand2 == null) {
 					return ExpressionResult.InvalidExpression
 				}
+
+				val result = when (token) {
+					Operator.ADD.symbol -> operand1 + operand2
+					Operator.SUBTRACT.symbol -> operand1 - operand2
+					Operator.MULTIPLY.symbol -> operand1 * operand2
+					Operator.DIVIDE.symbol -> {
+						if (operand2 == 0.0) {
+							return ExpressionResult.DivideByZeroError
+						} else {
+							operand1 / operand2
+						}
+					}
+
+					else -> return ExpressionResult.InvalidExpression
+				}
+				numberStack.add(result)
 			}
 		}
-		return ExpressionResult.Number(numberStack.first().toString())
+
+		return if (numberStack.size == 1) {
+			ExpressionResult.Number(numberStack.first())
+		} else {
+			ExpressionResult.InvalidExpression
+		}
 	}
 }

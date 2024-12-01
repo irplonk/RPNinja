@@ -2,23 +2,35 @@ package com.iplonk.rpninja.domain
 
 import androidx.lifecycle.ViewModel
 import com.iplonk.rpninja.ui.CalculatorUiState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import javax.inject.Inject
 
-class CalculatorViewModel(val rpnCalculator: RpnCalculator = RpnCalculator()) : ViewModel() {
+@HiltViewModel
+class CalculatorViewModel @Inject constructor(private val calculator: RpnCalculator) : ViewModel() {
 
-	val _uiState: MutableStateFlow<CalculatorUiState> = MutableStateFlow(CalculatorUiState())
+	private val _uiState: MutableStateFlow<CalculatorUiState> = MutableStateFlow(CalculatorUiState())
 	val uiState: StateFlow<CalculatorUiState> = _uiState.asStateFlow()
 
 	fun onAction(action: CalculatorAction) {
 		when (action) {
 			is CalculatorAction.Number -> onNumber(action.number)
 			is CalculatorAction.Operation -> onOperation(action.operator)
+			CalculatorAction.Decimal -> onDecimal()
 			CalculatorAction.Clear -> onClear()
 			CalculatorAction.Space -> onSpace()
 			CalculatorAction.Calculate -> onCalculate()
 			CalculatorAction.Delete -> onDelete()
+		}
+	}
+
+	private fun onDecimal() {
+		val currentExpression = _uiState.value.currentExpression
+		val lastCharacter = currentExpression.lastOrNull()
+		if (lastCharacter != ',') {
+			_uiState.value = _uiState.value.copy(currentExpression = "$currentExpression,")
 		}
 	}
 
@@ -32,14 +44,14 @@ class CalculatorViewModel(val rpnCalculator: RpnCalculator = RpnCalculator()) : 
 	private fun onCalculate() {
 		val currentExpression = _uiState.value.currentExpression
 		val expressionResult =
-			rpnCalculator.calculate(expression = currentExpression, delimiter = SINGLE_SPACE)
+			calculator.calculate(expression = currentExpression, delimiter = SINGLE_SPACE)
 		_uiState.value = _uiState.value.copy(result = expressionResult)
 	}
 
 	private fun onSpace() {
 		val currentExpression = _uiState.value.currentExpression
 		val lastCharacter = currentExpression.lastOrNull()
-		// We don't allow the user to keep adding whitespace
+		// We only allow the user to add whitespace between operands.
 		if (lastCharacter?.isWhitespace() == false) {
 			_uiState.value = _uiState.value.copy(currentExpression = currentExpression + SINGLE_SPACE)
 		}

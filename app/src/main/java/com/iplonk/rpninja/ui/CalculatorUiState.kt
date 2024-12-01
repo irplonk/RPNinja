@@ -6,7 +6,7 @@ data class CalculatorUiState(
 )
 
 sealed interface ExpressionResult {
-	data class Number(val number: String) : ExpressionResult
+	data class Number(val number: Double) : ExpressionResult
 	object DivideByZeroError : ExpressionResult
 	object InvalidExpression : ExpressionResult
 	object EmptyExpression : ExpressionResult
