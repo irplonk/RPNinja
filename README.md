@@ -31,12 +31,14 @@ checking the Google calculator app with a few different languages, I only notice
 a comma is used in place of a period for the decimal point while the other symbols remain the same.
 
 ## How to run
-
 Your emulator or physical Android mobile device must be running Android 10 or above.
 
 ### From clone project
 1. Download the latest version of Android Studio. I used Android Studio Ladybug (2024.2.1 Patch 2).
 2. Open this project in Android Studio and run.
 
-### From APKl
+### From APK
 Download the APK located in the top-level directory onto your device.
+
+## Take Home Prompt
+https://github.com/snap-mobile/mobile-take-home-exercise
