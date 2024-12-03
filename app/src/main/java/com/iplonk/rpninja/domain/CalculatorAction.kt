@@ -1,11 +1,10 @@
 package com.iplonk.rpninja.domain
 
-sealed interface CalculatorAction {
-	data class Number(val number: Int) : CalculatorAction
-	data class Operation(val operator: Operator) : CalculatorAction
-	object Decimal : CalculatorAction
-	object Clear : CalculatorAction
-	object Space : CalculatorAction
-	object Delete : CalculatorAction
-	object Calculate : CalculatorAction
+sealed class CalculatorAction(val symbol: String) {
+	data class Number(val number: Int) : CalculatorAction(number.toString())
+	data class Operation(val operator: Operator) : CalculatorAction(operator.symbol)
+	object Decimal : CalculatorAction(".")
+	object AllClear : CalculatorAction("AC")
+	object DeleteLastCharacter : CalculatorAction("<")
+	object Enter : CalculatorAction("=")
 }
