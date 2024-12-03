@@ -48,7 +48,7 @@ fun CalculatorScreen(viewModel: CalculatorViewModel = viewModel()) {
 					Text(text = item.toString())
 				}
 			}
-			uiState.error?.let { error ->
+			uiState.calculatorError?.let { error ->
 				Text(
 					modifier = Modifier.fillMaxWidth(),
 					text = stringResource(error.message),

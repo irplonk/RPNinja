@@ -40,7 +40,7 @@ val calculatorButtons = listOf(
 		backgroundColor = LightGray,
 	),
 	CalculatorButton(
-		action = CalculatorAction.Operation(Operator.DIVIDE),
+		action = CalculatorAction.Operation(Operator.Divide),
 		backgroundColor = Orange
 	),
 	CalculatorButton(
@@ -56,7 +56,7 @@ val calculatorButtons = listOf(
 		backgroundColor = LightGray,
 	),
 	CalculatorButton(
-		action = CalculatorAction.Operation(Operator.MULTIPLY),
+		action = CalculatorAction.Operation(Operator.Multiply),
 		backgroundColor = Orange,
 	),
 	CalculatorButton(
@@ -72,7 +72,7 @@ val calculatorButtons = listOf(
 		backgroundColor = LightGray,
 	),
 	CalculatorButton(
-		action = CalculatorAction.Operation(Operator.SUBTRACT),
+		action = CalculatorAction.Operation(Operator.Subtract),
 		backgroundColor = Orange,
 	),
 	CalculatorButton(
@@ -94,7 +94,7 @@ val calculatorButtons = listOf(
 		}
 	),
 	CalculatorButton(
-		action = CalculatorAction.Operation(Operator.ADD),
+		action = CalculatorAction.Operation(Operator.Add),
 		backgroundColor = Orange,
 	),
 	CalculatorButton(

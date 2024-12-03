@@ -3,7 +3,7 @@ package com.iplonk.rpninja.domain
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.iplonk.rpninja.ui.CalculatorUiState
-import com.iplonk.rpninja.ui.Error
+import com.iplonk.rpninja.ui.CalculatorError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -13,24 +13,22 @@ import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
-class CalculatorViewModel @Inject constructor(
-//	savedStateHandle: SavedStateHandle, TODO Should I add this?
-) : ViewModel() {
+class CalculatorViewModel @Inject constructor() : ViewModel() {
 
-	private val observableStack: ObservableRpnStack = ObservableRpnStack()
-	private val _workingNumber: MutableStateFlow<String> = MutableStateFlow("")
-	private val _error: MutableStateFlow<Error?> = MutableStateFlow(null)
+	private val observableStack = ObservableRpnStack()
+	private val _workingNumber = MutableStateFlow("")
+	private val _calculatorError = MutableStateFlow<CalculatorError?>(null)
 
 	val uiState: StateFlow<CalculatorUiState> =
 		combine(
 			_workingNumber,
 			observableStack.stackSnapshot,
-			_error
-		) { workingNumber, stackSnapshot, error ->
+			_calculatorError
+		) { workingNumber, stackSnapshot, calculatorError ->
 			CalculatorUiState(
 				workingNumber = workingNumber,
 				stackSnapshot = stackSnapshot,
-				error = error
+				calculatorError = calculatorError
 			)
 		}.stateIn(
 			scope = viewModelScope,
@@ -39,7 +37,10 @@ class CalculatorViewModel @Inject constructor(
 		)
 
 	fun onAction(action: CalculatorAction) {
-		_error.value = null
+		// When the user presses any key after receiving an error message, we will
+		// clear it out, so they can try again.
+		_calculatorError.value = null
+
 		when (action) {
 			is CalculatorAction.Number -> onNumber(action.number)
 			is CalculatorAction.Operation -> onOperation(action.operator)
@@ -52,17 +53,13 @@ class CalculatorViewModel @Inject constructor(
 
 	private fun onDecimal() {
 		val currentWorkingNumber = _workingNumber.value
-		val decimal = CalculatorAction.Decimal.symbol
-		if (!currentWorkingNumber.contains(decimal)) {
-			_workingNumber.value = currentWorkingNumber + decimal
+		if (!currentWorkingNumber.contains(CalculatorAction.Decimal.symbol)) {
+			_workingNumber.value = currentWorkingNumber + CalculatorAction.Decimal.symbol
 		}
 	}
 
 	private fun onDelete() {
-		val currentWorkingNumber = _workingNumber.value
-		if (currentWorkingNumber.isNotEmpty()) {
-			_workingNumber.value = currentWorkingNumber.dropLast(1)
-		}
+		_workingNumber.value = _workingNumber.value.dropLast(1)
 	}
 
 	private fun onEnter() {
@@ -70,46 +67,37 @@ class CalculatorViewModel @Inject constructor(
 		if (currentWorkingNumber != null) {
 			observableStack.add(currentWorkingNumber)
 			_workingNumber.value = ""
+		} else {
+			_calculatorError.value = CalculatorError.UnknownOperation
 		}
 	}
 
 	private fun onOperation(operator: Operator) {
 		if (observableStack.size < 2) {
-			_error.value = Error.InsufficientOperands
+			_calculatorError.value = CalculatorError.InsufficientOperands
 			return
-		} else {
-			val operand2 = observableStack.remove()
-			val operand1 = observableStack.remove()
-			val result = when (operator) {
-				Operator.DIVIDE -> if (operand2 != 0.0) {
-					operand1 - operand2
-				} else {
-					_error.value = Error.DivideByZero
-					return
-				}
-				Operator.SUBTRACT -> operand1 - operand2
-				Operator.ADD -> operand1 + operand2
-				Operator.MULTIPLY -> operand1 * operand2
+		}
+		val operand2 = observableStack.remove()
+		val operand1 = observableStack.remove()
+
+		val result = operator.apply(operand1, operand2)
+		result?.let {
+			observableStack.add(it)
+		} ?: run {
+			_calculatorError.value = when (operator) {
+				Operator.Divide -> CalculatorError.DivideByZero
+				else -> CalculatorError.UnknownOperation
 			}
-			observableStack.add(result)
 		}
 	}
 
 	private fun onNumber(number: Int) {
-		_workingNumber.value = "${_workingNumber.value}$number"
+		_workingNumber.value += number
 	}
 
 	private fun onClear() {
-		clearError()
-		clearWorkingNumber()
-		observableStack.clear()
-	}
-
-	private fun clearWorkingNumber() {
+		_calculatorError.value = null
 		_workingNumber.value = ""
-	}
-
-	private fun clearError() {
-		_error.value = null
+		observableStack.clear()
 	}
 }

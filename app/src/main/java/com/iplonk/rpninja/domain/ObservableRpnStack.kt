@@ -35,6 +35,6 @@ class ObservableRpnStack {
 	}
 
 	companion object {
-		private const val MAX_STACK_SNAPSHOT_SIZE = 3
+		const val MAX_STACK_SNAPSHOT_SIZE = 3
 	}
 }

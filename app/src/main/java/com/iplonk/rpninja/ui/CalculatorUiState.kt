@@ -6,10 +6,13 @@ import com.iplonk.rpninja.R
 data class CalculatorUiState(
 	val stackSnapshot: List<Double> = emptyList(),
 	val workingNumber: String = "",
-	val error: Error? = null,
+	val calculatorError: CalculatorError? = null,
 )
 
-sealed class Error(@StringRes val message: Int) {
-	object DivideByZero : Error(R.string.divide_by_zero_error_message)
-	object InsufficientOperands : Error(R.string.insufficient_operands_message)
+sealed class CalculatorError(@StringRes val message: Int) {
+	object DivideByZero : CalculatorError(R.string.divide_by_zero_error_message)
+	object InsufficientOperands : CalculatorError(R.string.insufficient_operands_message)
+	// TODO Add correct error messages here
+	object UnknownOperation : CalculatorError(R.string.enter_content_description)
+	object InvalidNumber : CalculatorError(R.string.enter_content_description)
 }

@@ -1,120 +1,217 @@
 package com.iplonk.rpninja.domain
 
-import com.iplonk.rpninja.ui.CalculatorUiState
-import com.iplonk.rpninja.ui.ExpressionResult
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
+import app.cash.turbine.test
+import com.iplonk.rpninja.ui.CalculatorError
 import junit.framework.TestCase.assertEquals
+import junit.framework.TestCase.assertNotNull
+import junit.framework.TestCase.assertNull
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 
+@ExperimentalCoroutinesApi
+// TODO Double-check that everything is covered here
 class CalculatorViewModelTest {
-    private val rpnCalculator = mockk<RpnCalculator>()
-    private val viewModel = CalculatorViewModel(rpnCalculator)
 
-    @Test
-    fun init_uiStateIsEmpty() {
-        assertEquals(CalculatorUiState(currentExpression = "", result = null), viewModel.uiState.value)
-    }
+	private lateinit var calculatorViewModel: CalculatorViewModel
 
-    @Test
-    fun onCalculate_operation_addsOperator() {
-        viewModel.onAction(CalculatorAction.Operation(Operator.ADD))
-        assertEquals(
-            CalculatorUiState(currentExpression = "+", result = null),
-            viewModel.uiState.value,
-        )
-    }
+	private val testDispatcher = UnconfinedTestDispatcher()
 
-    @Test
-    fun onCalculate_number_addsNumber() {
-        viewModel.onAction(CalculatorAction.Number(0))
-        assertEquals(
-            CalculatorUiState(currentExpression = "0", result = null),
-            viewModel.uiState.value,
-        )
-    }
+	@Before
+	fun setup() {
+		Dispatchers.setMain(testDispatcher)
+		calculatorViewModel = CalculatorViewModel()
+	}
 
-    @Test
-    fun onCalculate_space_addsSpaceOnlyBetweenOperands() {
-        // When there are no other characters, we don't add a space.
-        viewModel.onAction(CalculatorAction.Space)
-        assertEquals(
-            CalculatorUiState(currentExpression = "", result = null),
-            viewModel.uiState.value,
-        )
+	@After
+	fun tearDown() {
+		Dispatchers.resetMain()
+	}
 
-        // When there are other characters, we can add a space.
-        setUpExpression(operand1 = 1, operand2 = 1, operator = Operator.SUBTRACT)
+	@Test
+	fun stateInitialization() = runTest {
+		calculatorViewModel.uiState.test {
+			val uiState = awaitItem()
 
-        viewModel.onAction(CalculatorAction.Space)
-        assertEquals(
-            CalculatorUiState(currentExpression = "1 1 -", result = null),
-            viewModel.uiState.value,
-        )
+			assertEquals("", uiState.workingNumber)
+			assertEquals(emptyList<Double>(), uiState.stackSnapshot)
+			assertNull(uiState.calculatorError)
+		}
+	}
 
-        // When we already added a space, we cannot add another.
-        viewModel.onAction(CalculatorAction.Space)
-        assertEquals(
-            CalculatorUiState(currentExpression = "1 1 -", result = null),
-            viewModel.uiState.value,
-        )
-    }
+	@Test
+	fun addingSingleNumberUpdatesWorkingNumber() = runTest {
+		calculatorViewModel.uiState.test {
+			calculatorViewModel.onAction(CalculatorAction.Number(5))
 
-    @Test
-    fun onAction_delete_lastCharacterIsDeleted() {
-        setUpExpression(operand1 = 3, operand2 = 4, operator = Operator.ADD)
-        viewModel.onAction(CalculatorAction.AllClear)
-        assertEquals(
-            CalculatorUiState(currentExpression = "3 4 ", result = null),
-            viewModel.uiState.value,
-        )
-    }
+			val uiState = expectMostRecentItem()
 
-    @Test
-    fun onAction_calculate_callsRpnCalculatorAndUpdatesState() {
-        val expectedExpression = "4 5 -"
-        val expectedExpressionResult = ExpressionResult.Number(-1.0)
-        every { rpnCalculator.calculate(expectedExpression, ' ') } returns expectedExpressionResult
-        setUpExpression(operand1 = 4, operand2 = 5, operator = Operator.SUBTRACT)
+			assertEquals("5", uiState.workingNumber)
+			assertEquals(emptyList<Double>(), uiState.stackSnapshot)
+			assertNull(uiState.calculatorError)
+		}
+	}
 
-        viewModel.onAction(CalculatorAction.Enter)
+	@Test
+	fun addingMultipleNumbersUpdatesWorkingNumber() = runTest {
+		calculatorViewModel.uiState.test {
+			calculatorViewModel.onAction(CalculatorAction.Number(5))
+			calculatorViewModel.onAction(CalculatorAction.Number(3))
 
-        verify { rpnCalculator.calculate(expectedExpression, ' ') }
-        assertEquals(
-            CalculatorUiState(expectedExpression, expectedExpressionResult),
-            viewModel.uiState.value,
-        )
-    }
+			val uiState = expectMostRecentItem()
 
-    @Test
-    fun onAction_clear_uiStateIsEmpty() {
-        setUpExpression(operand1 = 3, operand2 = 4, operator = Operator.ADD)
-        viewModel.onAction(CalculatorAction.AllClear)
-        assertEquals(CalculatorUiState(currentExpression = "", result = null), viewModel.uiState.value)
-    }
+			assertEquals("53", uiState.workingNumber)
+			assertEquals(emptyList<Double>(), uiState.stackSnapshot)
+			assertNull(uiState.calculatorError)
+		}
+	}
 
-    private fun setUpExpression(
-        operand1: Int,
-        operand2: Int? = null,
-        operator: Operator? = null,
-    ) {
-        var expression = operand1.toString()
-        viewModel.onAction(CalculatorAction.Number(operand1))
+	@Test
+	fun addingDecimalUpdatesWorkingNumber() = runTest {
+		calculatorViewModel.uiState.test {
+			// Check that the first decimal gets appended to the working number
+			calculatorViewModel.onAction(CalculatorAction.Number(5))
+			calculatorViewModel.onAction(CalculatorAction.Decimal)
 
-        if (operand2 != null) {
-            viewModel.onAction(CalculatorAction.Space)
-            viewModel.onAction(CalculatorAction.Number(operand2))
-            expression += " $operand2"
-        }
+			val uiState = expectMostRecentItem()
 
-        if (operator != null) {
-            viewModel.onAction(CalculatorAction.Space)
-            viewModel.onAction(CalculatorAction.Operation(operator))
-            expression += " ${operator.symbol}"
-        }
+			assertEquals("5.", uiState.workingNumber)
+			assertEquals(emptyList<Double>(), uiState.stackSnapshot)
+			assertNull(uiState.calculatorError)
 
-        val uiState = viewModel.uiState.value
-        assertEquals(expression, uiState.currentExpression)
-    }
+			// Check that another decimal cannot be added
+			calculatorViewModel.onAction(CalculatorAction.Decimal)
+
+			expectNoEvents()
+		}
+	}
+
+	@Test
+	fun enteringValidNumberUpdatesStackAndClearsWorkingNumber() = runTest {
+		calculatorViewModel.uiState.test {
+			enterNumber(5)
+
+			val uiState = expectMostRecentItem()
+
+			assertEquals("", uiState.workingNumber)
+			assertEquals(listOf(5.0), uiState.stackSnapshot)
+		}
+	}
+
+	@Test
+	fun performingAdditionUpdatesState() = runTest {
+		calculatorViewModel.uiState.test {
+			enterNumber(5)
+			enterNumber(3)
+			// Simulating the addition operator being pressed
+			calculatorViewModel.onAction(CalculatorAction.Operation(Operator.Add))
+
+			val uiState = expectMostRecentItem()
+
+			assertEquals(listOf(8.0), uiState.stackSnapshot)
+		}
+	}
+
+	@Test
+	fun dividingByZeroUpdatesState() = runTest {
+		calculatorViewModel.uiState.test {
+			enterNumber(5)
+			enterNumber(0)
+			calculatorViewModel.onAction(CalculatorAction.Operation(Operator.Divide))
+
+			val uiState = expectMostRecentItem()
+
+			assertNotNull(uiState.calculatorError)
+			assertEquals(CalculatorError.DivideByZero, uiState.calculatorError)
+		}
+	}
+
+	@Test
+	fun performingAnOperationWithoutOperands() = runTest {
+		calculatorViewModel.uiState.test {
+			calculatorViewModel.onAction(CalculatorAction.Operation(Operator.Add))
+
+			val uiState = expectMostRecentItem()
+
+			assertNotNull(uiState.calculatorError)
+			assertEquals(CalculatorError.InsufficientOperands, uiState.calculatorError)
+		}
+	}
+
+	@Test
+	fun performingAnOperationsWithOneOperand() = runTest {
+		calculatorViewModel.uiState.test {
+			enterNumber(4)
+			calculatorViewModel.onAction(CalculatorAction.Operation(Operator.Add))
+
+			val uiState = expectMostRecentItem()
+
+			assertNotNull(uiState.calculatorError)
+			assertEquals(CalculatorError.InsufficientOperands, uiState.calculatorError)
+		}
+	}
+
+	@Test
+	fun clearResetsState() = runTest {
+		calculatorViewModel.uiState.test {
+			// Put the number 5 onto the stack
+			enterNumber(5)
+			// Input the number 4 but do not put into onto the stack
+			calculatorViewModel.onAction(CalculatorAction.Number(4))
+			// Try to subtract
+			calculatorViewModel.onAction(CalculatorAction.Operation(Operator.Subtract))
+			var uiState = expectMostRecentItem()
+
+			// Verify expected state before clearing
+			assertEquals("4", uiState.workingNumber)
+			assertEquals(listOf(5.0), uiState.stackSnapshot)
+			assertEquals(CalculatorError.InsufficientOperands, uiState.calculatorError)
+
+			calculatorViewModel.onAction(CalculatorAction.AllClear)
+
+			uiState = expectMostRecentItem()
+
+			// Verify that state has been reset
+			assertEquals("", uiState.workingNumber)
+			assertEquals(emptyList<Double>(), uiState.stackSnapshot)
+			assertNull(uiState.calculatorError)
+		}
+	}
+
+	@Test
+	fun deleteRemovesLastCharacterOfWorkingNumber() = runTest {
+		calculatorViewModel.uiState.test {
+			// Simulating the number 12 being inputted
+			calculatorViewModel.onAction(CalculatorAction.Number(1))
+			calculatorViewModel.onAction(CalculatorAction.Number(2))
+
+			var uiState = expectMostRecentItem()
+
+			// Verify the state before the backspace
+			assertEquals("12", uiState.workingNumber)
+			assertEquals(emptyList<Double>(), uiState.stackSnapshot)
+			assertNull(uiState.calculatorError)
+
+			// Simulating the backspace being pressed
+			calculatorViewModel.onAction(CalculatorAction.DeleteLastCharacter)
+
+			uiState = expectMostRecentItem()
+
+			assertEquals("1", uiState.workingNumber)
+			assertEquals(emptyList<Double>(), uiState.stackSnapshot)
+			assertNull(uiState.calculatorError)
+		}
+	}
+
+	private fun enterNumber(number: Int) {
+		require(number in 0..9)
+		calculatorViewModel.onAction(CalculatorAction.Number(number))
+		calculatorViewModel.onAction(CalculatorAction.Enter)
+	}
 }
