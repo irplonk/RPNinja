@@ -63,7 +63,7 @@ class CalculatorViewModel @Inject constructor() : ViewModel() {
 	private fun onDecimal() {
 		val currentWorkingNumber = _workingNumber.value
 		// If the number already has a decimal point, we will prevent the user from adding another.
-		if (currentWorkingNumber.contains('.')) {
+		if (!currentWorkingNumber.contains('.')) {
 			_workingNumber.value = "$currentWorkingNumber."
 		}
 	}

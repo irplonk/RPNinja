@@ -3,6 +3,8 @@ package com.iplonk.rpninja.ui
 import androidx.annotation.StringRes
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.iplonk.rpninja.R
@@ -92,6 +94,7 @@ val calculatorButtons = listOf(
 		action = CalculatorAction.DeleteLastCharacter,
 		content = {
 			Icon(
+				modifier = Modifier.scale(1.5f),
 				painter = painterResource(R.drawable.baseline_backspace_24),
 				contentDescription = stringResource(R.string.delete_content_description),
 			)
@@ -109,6 +112,7 @@ val calculatorButtons = listOf(
 		action = CalculatorAction.Enter,
 		content = {
 			Icon(
+				modifier = Modifier.scale(1.5f),
 				painter = painterResource(R.drawable.baseline_keyboard_return_24),
 				contentDescription = stringResource(R.string.enter_content_description),
 			)

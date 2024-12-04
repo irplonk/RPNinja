@@ -13,7 +13,7 @@ import com.iplonk.rpninja.R
  */
 data class CalculatorUiState(
 	val stackSnapshot: List<Double> = emptyList(),
-	val workingNumber: String? = null,
+	val workingNumber: String = "",
 	val calculatorError: CalculatorError? = null,
 )
 

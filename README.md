@@ -9,9 +9,10 @@ and perform high-level calculations with the grace and agility of a black belt w
 ### Key Features
 * **Delete Char Button**: Made a mistake? No problem! Delete a single character with ease—precision at your fingertips.
 * **Clear All Button**: One tap and you're back to square one. Start fresh without the clutter.
-* **Basic Arithmetic Operators**: Addition, subtraction, multiplication, and division—everything you need for day-to-day calculations.
+* **Basic Arithmetic Operators**: Addition, subtraction, multiplication, division, negation, and exponentiation—everything you need for day-to-day calculations.
 * **Decimal Point Support**: Handle those tricky decimals with ease. Numbers in any form? No sweat.
 * **Last Three Numbers on Stack**: View your last three entered numbers at a glance. Perfect for checking your progress.
+* **Dark Mode**: 
 * **Minimalist & Fast**: No distractions. Just you and your numbers. Calculate with speed and style.
 
 ## Technical Choices (WIP)
@@ -19,16 +20,36 @@ Reasoning behind your technical choices, including architectural
 
 ## Trade-offs (WIP)
 
-### Localization
-While the error messages and a few other strings are properly stored in strings.xml, the symbols
-used on the calculator are hardcoded within `CalculorButtons.kt`. I did this for the sake of time
-and simplicity since solving for this would include either
-* Creating a wrapper class for string resources to inject into the ViewModel for safe access
-* Translating between a model that represents the operands and the string resources in the UI layer
+Here are some trade-offs I made for the sake of time.
 
-Additionally, it felt less important to solve for this during this first iteration since, after
-checking the Google calculator app with a few different languages, I only noticed that sometimes
-a comma is used in place of a period for the decimal point while the other symbols remain the same.
+### Dimension and font size values
+In the UI layer I am using the same dp and sp values across screen sizes. While I did test out the
+app on the Pixel 9 and the small phone emulators, and it looked good, the values I selected may not
+work for every device. Ideally, these would live in `dimens.xml` or a custom dimens file to allow us
+to use the appropriate values based on screen size and resolution.
+
+### Locked into portrait mode
+In `AndroidManifest.xml` I locked the screen orientation to portrait mode. This is generally not
+recommended. From the Android [developer docs](https://developer.android.com/develop/ui/compose/layouts/adaptive/adaptive-dos-and-donts#orientation),
+it says
+ 
+> Don't restrict activity orientation. Apps that lock orientation are letterboxed on large screen devices and incompatible window sizes. 
+Letterboxed apps are subject to decreased discoverability on Google Play for tablets, foldables, and ChromeOS devices.
+
+If I had more time, I would support landscape mode by rearranging the buttons into more columns to
+fit the increased width of the screen, moving the stack to be on the left-hand side of the buttons
+while keeping the current position of the input and error messages, and decreasing the size of the
+UI elements as needed. I could then toggle between this layout and the portrait mode layout as I
+observe orientation changes.
+
+### No instrumented tests
+While I did add unit tests, this app doesn't contain any tests that interact with the user interface. 
+
+### Localization
+While most of the strings displayed in the UI are properly stored in `strings.xml`, the decimal
+symbol that is displayed as user input is hardcoded within `CalculatorViewModel.kt`. Many languages
+use a comma instead of a period to represent a decimal point, so ideally this would be handled
+to fully support localization.
 
 ## How to run
 Your emulator or physical Android mobile device must be running Android 10 or above.
@@ -40,5 +61,5 @@ Your emulator or physical Android mobile device must be running Android 10 or ab
 ### From APK
 Download the APK located in the top-level directory onto your device.
 
-## Take Home Prompt
+## Original Take Home Assignment Prompt
 https://github.com/snap-mobile/mobile-take-home-exercise

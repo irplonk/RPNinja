@@ -1,8 +1,7 @@
 <resources>
     <string name="app_name">RPNinja</string>
-    <string name="all_clear">AC</string>
+    <string name="all_clear">C</string>
     <string name="divide">"÷"</string>
-    <string name="clear">AC</string>
     <string name="space">␣</string>
     <string name="decimal">.</string>
     <string name="add">+</string>
