@@ -1,6 +1,8 @@
 package com.iplonk.rpninja.domain
 
 import junit.framework.TestCase.assertEquals
+import junit.framework.TestCase.assertFalse
+import junit.framework.TestCase.assertTrue
 import org.junit.Test
 
 class ObservableRpnStackTest {
@@ -11,6 +13,7 @@ class ObservableRpnStackTest {
 	fun stackInitialization() {
 		assertEquals(0, stack.size)
 		assertEquals(emptyList<Double>(), stack.stackSnapshot.value)
+		assertTrue(stack.isEmpty())
 	}
 
 	@Test
@@ -18,6 +21,7 @@ class ObservableRpnStackTest {
 		stack.add(1.0)
 		assertEquals(1, stack.size)
 		assertEquals(listOf(1.0), stack.stackSnapshot.value)
+		assertFalse(stack.isEmpty())
 	}
 
 	@Test
@@ -27,6 +31,7 @@ class ObservableRpnStackTest {
 		stack.add(3.0)
 		assertEquals(3, stack.size)
 		assertEquals(listOf(1.0, 2.0, 3.0), stack.stackSnapshot.value)
+		assertFalse(stack.isEmpty())
 	}
 
 	@Test
@@ -37,16 +42,24 @@ class ObservableRpnStackTest {
 		stack.add(4.0)
 		assertEquals(4, stack.size)
 		assertEquals(listOf(2.0, 3.0, 4.0), stack.stackSnapshot.value)
+		assertFalse(stack.isEmpty())
 	}
 
 	@Test
-	fun removeElementFromStack() {
+	fun removeElementsFromStack() {
 		stack.add(1.0)
 		stack.add(2.0)
 		stack.add(3.0)
 		stack.remove()
 		assertEquals(2, stack.size)
 		assertEquals(listOf(1.0, 2.0), stack.stackSnapshot.value)
+		assertFalse(stack.isEmpty())
+
+		stack.remove()
+		stack.remove()
+		assertEquals(0, stack.size)
+		assertEquals(emptyList<Double>(), stack.stackSnapshot.value)
+		assertTrue(stack.isEmpty())
 	}
 
 	@Test(expected = NoSuchElementException::class)
@@ -63,6 +76,7 @@ class ObservableRpnStackTest {
 		stack.clear()
 		assertEquals(0, stack.size)
 		assertEquals(emptyList<Double>(), stack.stackSnapshot.value)
+		assertTrue(stack.isEmpty())
 	}
 
 	@Test

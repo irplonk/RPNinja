@@ -2,8 +2,8 @@ package com.iplonk.rpninja.domain
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.iplonk.rpninja.ui.CalculatorUiState
 import com.iplonk.rpninja.ui.CalculatorError
+import com.iplonk.rpninja.ui.CalculatorUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -12,6 +12,11 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
+/**
+ * Handles the business logic for the main calculator view
+ *
+ * @property uiState Represents the current state of the calculator UI
+ */
 @HiltViewModel
 class CalculatorViewModel @Inject constructor() : ViewModel() {
 
@@ -51,10 +56,12 @@ class CalculatorViewModel @Inject constructor() : ViewModel() {
 		}
 	}
 
+	// TODO Anything we can do not to hardcode this here?
 	private fun onDecimal() {
 		val currentWorkingNumber = _workingNumber.value
-		if (!currentWorkingNumber.contains(CalculatorAction.Decimal.symbol)) {
-			_workingNumber.value = currentWorkingNumber + CalculatorAction.Decimal.symbol
+		// If the number already has a decimal point, we will prevent the user from adding another.
+		if (currentWorkingNumber.contains('.')) {
+			_workingNumber.value = "$currentWorkingNumber."
 		}
 	}
 
@@ -68,26 +75,9 @@ class CalculatorViewModel @Inject constructor() : ViewModel() {
 			observableStack.add(currentWorkingNumber)
 			_workingNumber.value = ""
 		} else {
-			_calculatorError.value = CalculatorError.UnknownOperation
-		}
-	}
-
-	private fun onOperation(operator: Operator) {
-		if (observableStack.size < 2) {
-			_calculatorError.value = CalculatorError.InsufficientOperands
-			return
-		}
-		val operand2 = observableStack.remove()
-		val operand1 = observableStack.remove()
-
-		val result = operator.apply(operand1, operand2)
-		result?.let {
-			observableStack.add(it)
-		} ?: run {
-			_calculatorError.value = when (operator) {
-				Operator.Divide -> CalculatorError.DivideByZero
-				else -> CalculatorError.UnknownOperation
-			}
+			// We shouldn't ever get here since we control what the user can enter through the keypad UI,
+			// but we will add this here to be safe. In a production app, we would want to send a remote log here.
+			handleError(CalculatorError.InvalidNumber)
 		}
 	}
 
@@ -99,5 +89,59 @@ class CalculatorViewModel @Inject constructor() : ViewModel() {
 		_calculatorError.value = null
 		_workingNumber.value = ""
 		observableStack.clear()
+	}
+
+	private fun onOperation(operator: Operator) {
+		when (operator) {
+			is UnaryOperator -> handleUnaryOperation(operator)
+			is BinaryOperator -> handleBinaryOperation(operator)
+		}
+	}
+
+	private fun handleUnaryOperation(operator: UnaryOperator) {
+		val currentWorkingNumber = _workingNumber.value
+		if (operator is Negate && currentWorkingNumber.isNotBlank()) {
+			toggleSign()
+		} else if (observableStack.isEmpty()) {
+			handleError(CalculatorError.InsufficientOperands)
+		} else {
+			val operand = observableStack.remove()
+			val result = operator.apply(operand)
+			observableStack.add(result)
+		}
+	}
+
+	private fun handleBinaryOperation(operator: BinaryOperator) {
+		if (observableStack.size < 2) {
+			handleError(CalculatorError.InsufficientOperands)
+			return
+		}
+
+		val operand2 = observableStack.remove()
+		val operand1 = observableStack.remove()
+		val result = operator.apply(operand1, operand2)
+
+		if (result != null) {
+			observableStack.add(result)
+		} else {
+			val error = when (operator) {
+				is Divide -> CalculatorError.DivideByZero
+				else -> CalculatorError.UnknownOperation
+			}
+			handleError(error)
+		}
+	}
+
+	private fun toggleSign() {
+		val currentWorkingNumber = _workingNumber.value
+		_workingNumber.value = if (currentWorkingNumber.startsWith("-")) {
+			currentWorkingNumber.drop(1)
+		} else {
+			"-$currentWorkingNumber"
+		}
+	}
+
+	private fun handleError(error: CalculatorError) {
+		_calculatorError.value = error
 	}
 }

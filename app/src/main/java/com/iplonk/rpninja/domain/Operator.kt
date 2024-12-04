@@ -1,26 +1,47 @@
 package com.iplonk.rpninja.domain
 
+import kotlin.math.pow
+
 /**
- * Represents all of the available operators that can be applied on two or more numbers
+ * Represents all of the available operators that can be applied to do mathematical calculations
  */
-sealed class Operator(val symbol: String) {
+sealed interface Operator
 
-	abstract fun apply(operand1: Double, operand2: Double): Double?
+/**
+ * Represents all of the available operators that can be applied on two numbers
+ */
+interface BinaryOperator : Operator {
+	fun apply(operand1: Double, operand2: Double): Double?
+}
 
-	object Divide : Operator("÷") {
-		override fun apply(operand1: Double, operand2: Double) =
-			if (operand2 != 0.0) operand1 / operand2 else null
-	}
+/**
+ * Represents all of the available operators that can be applied on one number
+ */
+interface UnaryOperator : Operator {
+	fun apply(operand1: Double): Double
+}
 
-	object Multiply : Operator("x") {
-		override fun apply(operand1: Double, operand2: Double) = operand1 * operand2
-	}
+data object Divide : BinaryOperator {
+	override fun apply(operand1: Double, operand2: Double) =
+		if (operand2 != 0.0) operand1 / operand2 else null
+}
 
-	object Subtract : Operator("-") {
-		override fun apply(operand1: Double, operand2: Double) = operand1 - operand2
-	}
+data object Multiply : BinaryOperator {
+	override fun apply(operand1: Double, operand2: Double) = operand1 * operand2
+}
 
-	object Add : Operator("+") {
-		override fun apply(operand1: Double, operand2: Double) = operand1 + operand2
-	}
+data object Subtract : BinaryOperator {
+	override fun apply(operand1: Double, operand2: Double) = operand1 - operand2
+}
+
+data object Add : BinaryOperator {
+	override fun apply(operand1: Double, operand2: Double) = operand1 + operand2
+}
+
+data object Negate : UnaryOperator {
+	override fun apply(operand1: Double) = -operand1
+}
+
+data object Exponentiate : BinaryOperator {
+	override fun apply(operand1: Double, operand2: Double) = operand1.pow(operand2)
 }

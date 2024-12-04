@@ -1,91 +1,95 @@
 package com.iplonk.rpninja.ui
 
+import androidx.annotation.StringRes
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.sp
 import com.iplonk.rpninja.R
+import com.iplonk.rpninja.domain.Add
 import com.iplonk.rpninja.domain.CalculatorAction
-import com.iplonk.rpninja.domain.Operator
-import com.iplonk.rpninja.ui.theme.Green
-import com.iplonk.rpninja.ui.theme.LightGray
-import com.iplonk.rpninja.ui.theme.Orange
-import com.iplonk.rpninja.ui.theme.Red
+import com.iplonk.rpninja.domain.Divide
+import com.iplonk.rpninja.domain.Exponentiate
+import com.iplonk.rpninja.domain.Multiply
+import com.iplonk.rpninja.domain.Negate
+import com.iplonk.rpninja.domain.Subtract
 
+/**
+ * Represents the information needs to display a calculator button on the main calculator keypad
+ *
+ * @property text If exists, the button will contain this text
+ * @property action The action that is taken when the user clicks on the button
+ * @property content Used for displaying icons instead of text within the button
+ */
 data class CalculatorButton(
+	@StringRes val text: Int? = null,
 	val action: CalculatorAction,
-	val backgroundColor: Color,
-	val content: @Composable () -> Unit = {
-		Text(
-			text = action.symbol,
-			fontSize = 36.sp,
-		)
-	},
+	val content: @Composable () -> Unit = {},
 )
 
+/**
+ * List of the calculator buttons that appear on the screen. Order in the list represents the order
+ * in which they are displayed from left to right, top to bottom.
+ */
 val calculatorButtons = listOf(
 	CalculatorButton(
+		text = R.string.seven,
 		action = CalculatorAction.Number(7),
-		backgroundColor = LightGray,
 	),
 	CalculatorButton(
+		text = R.string.eight,
 		action = CalculatorAction.Number(8),
-		backgroundColor = LightGray,
 	),
 	CalculatorButton(
+		text = R.string.nine,
 		action = CalculatorAction.Number(9),
-		backgroundColor = LightGray,
 	),
 	CalculatorButton(
-		action = CalculatorAction.Operation(Operator.Divide),
-		backgroundColor = Orange
+		text = R.string.divide,
+		action = CalculatorAction.Operation(Divide),
 	),
 	CalculatorButton(
+		text = R.string.four,
 		action = CalculatorAction.Number(4),
-		backgroundColor = LightGray,
 	),
 	CalculatorButton(
+		text = R.string.five,
 		action = CalculatorAction.Number(5),
-		backgroundColor = LightGray,
 	),
 	CalculatorButton(
+		text = R.string.six,
 		action = CalculatorAction.Number(6),
-		backgroundColor = LightGray,
 	),
 	CalculatorButton(
-		action = CalculatorAction.Operation(Operator.Multiply),
-		backgroundColor = Orange,
+		text = R.string.multiply,
+		action = CalculatorAction.Operation(Multiply),
 	),
 	CalculatorButton(
+		text = R.string.one,
 		action = CalculatorAction.Number(1),
-		backgroundColor = LightGray,
 	),
 	CalculatorButton(
+		text = R.string.two,
 		action = CalculatorAction.Number(2),
-		backgroundColor = LightGray,
 	),
 	CalculatorButton(
+		text = R.string.three,
 		action = CalculatorAction.Number(3),
-		backgroundColor = LightGray,
 	),
 	CalculatorButton(
-		action = CalculatorAction.Operation(Operator.Subtract),
-		backgroundColor = Orange,
+		text = R.string.subtract,
+		action = CalculatorAction.Operation(Subtract),
 	),
 	CalculatorButton(
+		text = R.string.zero,
 		action = CalculatorAction.Number(0),
-		backgroundColor = LightGray,
 	),
 	CalculatorButton(
+		R.string.decimal,
 		action = CalculatorAction.Decimal,
-		backgroundColor = LightGray,
 	),
 	CalculatorButton(
 		action = CalculatorAction.DeleteLastCharacter,
-		backgroundColor = LightGray,
 		content = {
 			Icon(
 				painter = painterResource(R.drawable.baseline_backspace_24),
@@ -94,16 +98,15 @@ val calculatorButtons = listOf(
 		}
 	),
 	CalculatorButton(
-		action = CalculatorAction.Operation(Operator.Add),
-		backgroundColor = Orange,
+		text = R.string.add,
+		action = CalculatorAction.Operation(Add),
 	),
 	CalculatorButton(
+		text = R.string.all_clear,
 		action = CalculatorAction.AllClear,
-		backgroundColor = Red,
 	),
 	CalculatorButton(
 		action = CalculatorAction.Enter,
-		backgroundColor = Green,
 		content = {
 			Icon(
 				painter = painterResource(R.drawable.baseline_keyboard_return_24),
@@ -111,4 +114,12 @@ val calculatorButtons = listOf(
 			)
 		}
 	),
+	CalculatorButton(
+		text = R.string.exponentiate,
+		action = CalculatorAction.Operation(Exponentiate),
+	),
+	CalculatorButton(
+		text = R.string.negate,
+		action = CalculatorAction.Operation(Negate),
+	)
 )

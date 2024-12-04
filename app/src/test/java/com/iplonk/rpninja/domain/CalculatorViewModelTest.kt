@@ -110,7 +110,7 @@ class CalculatorViewModelTest {
 			enterNumber(5)
 			enterNumber(3)
 			// Simulating the addition operator being pressed
-			calculatorViewModel.onAction(CalculatorAction.Operation(Operator.Add))
+			calculatorViewModel.onAction(CalculatorAction.Operation(Add))
 
 			val uiState = expectMostRecentItem()
 
@@ -119,11 +119,44 @@ class CalculatorViewModelTest {
 	}
 
 	@Test
+	fun performingExponentiationUpdatesState() = runTest {
+		calculatorViewModel.uiState.test {
+			enterNumber(5)
+			// Simulating the exponentiation operator being pressed
+			calculatorViewModel.onAction(CalculatorAction.Operation(Exponentiate))
+
+			val uiState = expectMostRecentItem()
+
+			assertEquals(listOf(25.0), uiState.stackSnapshot)
+		}
+	}
+
+	@Test
+	fun performingNegationUpdatesState() = runTest {
+		calculatorViewModel.uiState.test {
+			enterNumber(5)
+			// Simulating the negation operator being pressed
+			calculatorViewModel.onAction(CalculatorAction.Operation(Negate))
+
+			var uiState = expectMostRecentItem()
+
+			assertEquals(listOf(-5.0), uiState.stackSnapshot)
+
+			// Simulating the negation operator being pressed again
+			calculatorViewModel.onAction(CalculatorAction.Operation(Negate))
+
+			uiState = expectMostRecentItem()
+
+			assertEquals(listOf(5.0), uiState.stackSnapshot)
+		}
+	}
+
+	@Test
 	fun dividingByZeroUpdatesState() = runTest {
 		calculatorViewModel.uiState.test {
 			enterNumber(5)
 			enterNumber(0)
-			calculatorViewModel.onAction(CalculatorAction.Operation(Operator.Divide))
+			calculatorViewModel.onAction(CalculatorAction.Operation(Divide))
 
 			val uiState = expectMostRecentItem()
 
@@ -133,27 +166,48 @@ class CalculatorViewModelTest {
 	}
 
 	@Test
-	fun performingAnOperationWithoutOperands() = runTest {
+	fun performingAUnaryOperationWithoutOperands() = runTest {
 		calculatorViewModel.uiState.test {
-			calculatorViewModel.onAction(CalculatorAction.Operation(Operator.Add))
+			calculatorViewModel.onAction(CalculatorAction.Operation(Negate))
 
 			val uiState = expectMostRecentItem()
 
 			assertNotNull(uiState.calculatorError)
-			assertEquals(CalculatorError.InsufficientOperands, uiState.calculatorError)
+			assertEquals(
+				CalculatorError.InsufficientOperands,
+				uiState.calculatorError
+			)
 		}
 	}
 
 	@Test
-	fun performingAnOperationsWithOneOperand() = runTest {
+	fun performingABinaryOperationWithoutOperands() = runTest {
 		calculatorViewModel.uiState.test {
-			enterNumber(4)
-			calculatorViewModel.onAction(CalculatorAction.Operation(Operator.Add))
+			calculatorViewModel.onAction(CalculatorAction.Operation(Add))
 
 			val uiState = expectMostRecentItem()
 
 			assertNotNull(uiState.calculatorError)
-			assertEquals(CalculatorError.InsufficientOperands, uiState.calculatorError)
+			assertEquals(
+				CalculatorError.InsufficientOperands,
+				uiState.calculatorError
+			)
+		}
+	}
+
+	@Test
+	fun performingABinaryOperationsWithOneOperand() = runTest {
+		calculatorViewModel.uiState.test {
+			enterNumber(4)
+			calculatorViewModel.onAction(CalculatorAction.Operation(Add))
+
+			val uiState = expectMostRecentItem()
+
+			assertNotNull(uiState.calculatorError)
+			assertEquals(
+				CalculatorError.InsufficientOperands,
+				uiState.calculatorError
+			)
 		}
 	}
 
@@ -165,13 +219,16 @@ class CalculatorViewModelTest {
 			// Input the number 4 but do not put into onto the stack
 			calculatorViewModel.onAction(CalculatorAction.Number(4))
 			// Try to subtract
-			calculatorViewModel.onAction(CalculatorAction.Operation(Operator.Subtract))
+			calculatorViewModel.onAction(CalculatorAction.Operation(Subtract))
 			var uiState = expectMostRecentItem()
 
 			// Verify expected state before clearing
 			assertEquals("4", uiState.workingNumber)
 			assertEquals(listOf(5.0), uiState.stackSnapshot)
-			assertEquals(CalculatorError.InsufficientOperands, uiState.calculatorError)
+			assertEquals(
+				CalculatorError.InsufficientOperands,
+				uiState.calculatorError
+			)
 
 			calculatorViewModel.onAction(CalculatorAction.AllClear)
 
