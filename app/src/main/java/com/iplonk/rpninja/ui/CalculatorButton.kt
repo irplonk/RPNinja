@@ -6,13 +6,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.iplonk.rpninja.R
-import com.iplonk.rpninja.domain.Add
+import com.iplonk.rpninja.domain.Operator.Add
 import com.iplonk.rpninja.domain.CalculatorAction
-import com.iplonk.rpninja.domain.Divide
-import com.iplonk.rpninja.domain.Exponentiate
-import com.iplonk.rpninja.domain.Multiply
-import com.iplonk.rpninja.domain.Negate
-import com.iplonk.rpninja.domain.Subtract
+import com.iplonk.rpninja.domain.Operator.Divide
+import com.iplonk.rpninja.domain.Operator.Exponentiate
+import com.iplonk.rpninja.domain.Operator.Multiply
+import com.iplonk.rpninja.domain.Operator.Negate
+import com.iplonk.rpninja.domain.Operator.Subtract
 
 /**
  * Represents the information needs to display a calculator button on the main calculator keypad

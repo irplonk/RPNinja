@@ -20,10 +20,10 @@
     <string name="eight">8</string>
     <string name="nine">9</string>
     <string name="zero">0</string>
-    <string name="delete_content_description">backspace</string>
-    <string name="enter_content_description">enter</string>
-    <string name="unknown_operation_message">Unknown operation</string>
-    <string name="divide_by_zero_error_message">You can\'t divide by 0</string>
-    <string name="insufficient_operands_message">Insufficient number of operands</string>
-    <string name="invalid_number_message">Invalid number</string>
+    <string name="delete_content_description">la tecla de retroceso</string>
+    <string name="enter_content_description">introducir</string>
+    <string name="unknown_operation_message">Operación desconocida</string>
+    <string name="divide_by_zero_error_message">No se puede dividir por 0</string>
+    <string name="insufficient_operands_message">Numero de operandos insuficiente</string>
+    <string name="invalid_number_message">Numero invalido</string>
 </resources>

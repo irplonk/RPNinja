@@ -1,5 +1,10 @@
 package com.iplonk.rpninja.domain
 
+import com.iplonk.rpninja.domain.Operator.Add
+import com.iplonk.rpninja.domain.Operator.Divide
+import com.iplonk.rpninja.domain.Operator.Exponentiate
+import com.iplonk.rpninja.domain.Operator.Multiply
+import com.iplonk.rpninja.domain.Operator.Negate
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNull
 import org.junit.Test

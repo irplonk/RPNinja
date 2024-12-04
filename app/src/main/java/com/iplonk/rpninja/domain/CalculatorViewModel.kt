@@ -2,6 +2,10 @@ package com.iplonk.rpninja.domain
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.iplonk.rpninja.domain.Operator.BinaryOperator
+import com.iplonk.rpninja.domain.Operator.Divide
+import com.iplonk.rpninja.domain.Operator.Negate
+import com.iplonk.rpninja.domain.Operator.UnaryOperator
 import com.iplonk.rpninja.ui.CalculatorError
 import com.iplonk.rpninja.ui.CalculatorUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -56,7 +60,6 @@ class CalculatorViewModel @Inject constructor() : ViewModel() {
 		}
 	}
 
-	// TODO Anything we can do not to hardcode this here?
 	private fun onDecimal() {
 		val currentWorkingNumber = _workingNumber.value
 		// If the number already has a decimal point, we will prevent the user from adding another.

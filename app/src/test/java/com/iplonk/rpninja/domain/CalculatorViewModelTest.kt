@@ -1,6 +1,11 @@
 package com.iplonk.rpninja.domain
 
 import app.cash.turbine.test
+import com.iplonk.rpninja.domain.Operator.Add
+import com.iplonk.rpninja.domain.Operator.Divide
+import com.iplonk.rpninja.domain.Operator.Exponentiate
+import com.iplonk.rpninja.domain.Operator.Negate
+import com.iplonk.rpninja.domain.Operator.Subtract
 import com.iplonk.rpninja.ui.CalculatorError
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
@@ -16,7 +21,6 @@ import org.junit.Before
 import org.junit.Test
 
 @ExperimentalCoroutinesApi
-// TODO Double-check that everything is covered here
 class CalculatorViewModelTest {
 
 	private lateinit var calculatorViewModel: CalculatorViewModel
@@ -35,7 +39,7 @@ class CalculatorViewModelTest {
 	}
 
 	@Test
-	fun stateInitialization() = runTest {
+	fun uiStateInitialization() = runTest {
 		calculatorViewModel.uiState.test {
 			val uiState = awaitItem()
 
@@ -46,7 +50,7 @@ class CalculatorViewModelTest {
 	}
 
 	@Test
-	fun addingSingleNumberUpdatesWorkingNumber() = runTest {
+	fun inputtingSingleNumberUpdatesWorkingNumber() = runTest {
 		calculatorViewModel.uiState.test {
 			calculatorViewModel.onAction(CalculatorAction.Number(5))
 
@@ -59,7 +63,7 @@ class CalculatorViewModelTest {
 	}
 
 	@Test
-	fun addingMultipleNumbersUpdatesWorkingNumber() = runTest {
+	fun inputtingMultipleNumbersUpdatesWorkingNumber() = runTest {
 		calculatorViewModel.uiState.test {
 			calculatorViewModel.onAction(CalculatorAction.Number(5))
 			calculatorViewModel.onAction(CalculatorAction.Number(3))
@@ -73,7 +77,7 @@ class CalculatorViewModelTest {
 	}
 
 	@Test
-	fun addingDecimalUpdatesWorkingNumber() = runTest {
+	fun inputtingDecimalUpdatesWorkingNumber() = runTest {
 		calculatorViewModel.uiState.test {
 			// Check that the first decimal gets appended to the working number
 			calculatorViewModel.onAction(CalculatorAction.Number(5))
@@ -107,9 +111,10 @@ class CalculatorViewModelTest {
 	@Test
 	fun performingAdditionUpdatesState() = runTest {
 		calculatorViewModel.uiState.test {
+			// Add the numbers 5 and 3 to the stack
 			enterNumber(5)
 			enterNumber(3)
-			// Simulating the addition operator being pressed
+			// Simulate the addition operator being pressed
 			calculatorViewModel.onAction(CalculatorAction.Operation(Add))
 
 			val uiState = expectMostRecentItem()
@@ -121,8 +126,10 @@ class CalculatorViewModelTest {
 	@Test
 	fun performingExponentiationUpdatesState() = runTest {
 		calculatorViewModel.uiState.test {
+			// Add the numbers 5 and 2 to the stack
 			enterNumber(5)
-			// Simulating the exponentiation operator being pressed
+			enterNumber(2)
+			// Simulate the exponentiation operator being pressed
 			calculatorViewModel.onAction(CalculatorAction.Operation(Exponentiate))
 
 			val uiState = expectMostRecentItem()
@@ -134,26 +141,21 @@ class CalculatorViewModelTest {
 	@Test
 	fun performingNegationUpdatesState() = runTest {
 		calculatorViewModel.uiState.test {
+			// Add the number 5 to the stack
 			enterNumber(5)
-			// Simulating the negation operator being pressed
+			// Simulate the negation operator being pressed
 			calculatorViewModel.onAction(CalculatorAction.Operation(Negate))
 
 			var uiState = expectMostRecentItem()
 
 			assertEquals(listOf(-5.0), uiState.stackSnapshot)
-
-			// Simulating the negation operator being pressed again
-			calculatorViewModel.onAction(CalculatorAction.Operation(Negate))
-
-			uiState = expectMostRecentItem()
-
-			assertEquals(listOf(5.0), uiState.stackSnapshot)
 		}
 	}
 
 	@Test
 	fun dividingByZeroUpdatesState() = runTest {
 		calculatorViewModel.uiState.test {
+			// Adding the numbers 5 and 0 to the stack
 			enterNumber(5)
 			enterNumber(0)
 			calculatorViewModel.onAction(CalculatorAction.Operation(Divide))
@@ -162,6 +164,38 @@ class CalculatorViewModelTest {
 
 			assertNotNull(uiState.calculatorError)
 			assertEquals(CalculatorError.DivideByZero, uiState.calculatorError)
+		}
+	}
+
+	@Test
+	fun performingNegationWithWorkingNumber() = runTest {
+		calculatorViewModel.uiState.test {
+			// Add the number 5 to the stack
+			enterNumber(5)
+			// Input the number 4
+			calculatorViewModel.onAction(CalculatorAction.Number(4))
+			calculatorViewModel.onAction(CalculatorAction.Operation(Negate))
+
+			val uiState = expectMostRecentItem()
+
+			assertEquals("-4", uiState.workingNumber)
+			assertEquals(listOf<Double>(5.0), uiState.stackSnapshot)
+			assertNull(uiState.calculatorError)
+		}
+	}
+
+	@Test
+	fun performingNegationWithStackElement() = runTest {
+		calculatorViewModel.uiState.test {
+			// Add the number 5 to the stack
+			enterNumber(5)
+			calculatorViewModel.onAction(CalculatorAction.Operation(Negate))
+
+			val uiState = expectMostRecentItem()
+
+			assertEquals("", uiState.workingNumber)
+			assertEquals(listOf<Double>(-5.0), uiState.stackSnapshot)
+			assertNull(uiState.calculatorError)
 		}
 	}
 
@@ -244,7 +278,7 @@ class CalculatorViewModelTest {
 	@Test
 	fun deleteRemovesLastCharacterOfWorkingNumber() = runTest {
 		calculatorViewModel.uiState.test {
-			// Simulating the number 12 being inputted
+			// Simulate the number 12 being inputted
 			calculatorViewModel.onAction(CalculatorAction.Number(1))
 			calculatorViewModel.onAction(CalculatorAction.Number(2))
 
@@ -255,7 +289,7 @@ class CalculatorViewModelTest {
 			assertEquals(emptyList<Double>(), uiState.stackSnapshot)
 			assertNull(uiState.calculatorError)
 
-			// Simulating the backspace being pressed
+			// Simulate the backspace being pressed
 			calculatorViewModel.onAction(CalculatorAction.DeleteLastCharacter)
 
 			uiState = expectMostRecentItem()
@@ -266,6 +300,11 @@ class CalculatorViewModelTest {
 		}
 	}
 
+	/**
+	 * Helper function to add keypad numbers to the stack
+	 *
+	 * @param number an integer between 0 and 9 (inclusive)
+	 */
 	private fun enterNumber(number: Int) {
 		require(number in 0..9)
 		calculatorViewModel.onAction(CalculatorAction.Number(number))
