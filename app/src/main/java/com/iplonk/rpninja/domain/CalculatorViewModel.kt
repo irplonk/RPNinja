@@ -73,13 +73,13 @@ class CalculatorViewModel @Inject constructor() : ViewModel() {
 	}
 
 	private fun onEnter() {
-		val currentWorkingNumber = _workingNumber.value.toDoubleOrNull()
-		if (currentWorkingNumber != null) {
-			observableStack.add(currentWorkingNumber)
+		val currentWorkingNumber = _workingNumber.value
+		if (currentWorkingNumber.isBlank()) return // No action for blank input
+
+		currentWorkingNumber.toDoubleOrNull()?.let { number ->
+			observableStack.add(currentWorkingNumber.toDouble())
 			_workingNumber.value = ""
-		} else {
-			// We shouldn't ever get here since we control what the user can enter through the keypad UI,
-			// but we will add this here to be safe. In a production app, we would want to send a remote log here.
+		} ?: run {
 			handleError(CalculatorError.InvalidNumber)
 		}
 	}

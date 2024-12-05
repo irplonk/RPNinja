@@ -97,6 +97,34 @@ class CalculatorViewModelTest {
 	}
 
 	@Test
+	fun invalidNumberError() = runTest {
+		calculatorViewModel.uiState.test {
+			// Just a decimal point is an invalid number
+			calculatorViewModel.onAction(CalculatorAction.Decimal)
+			calculatorViewModel.onAction(CalculatorAction.Enter)
+
+			val uiState = expectMostRecentItem()
+
+			assertEquals(".", uiState.workingNumber)
+			assertEquals(emptyList<Double>(), uiState.stackSnapshot)
+			assertEquals(CalculatorError.InvalidNumber, uiState.calculatorError)
+
+			expectNoEvents()
+		}
+	}
+
+	@Test
+	fun pressingEnteringWithoutWorkingNumberDoesNothing() = runTest {
+		calculatorViewModel.uiState.test {
+			awaitItem() // Clears out the initial event
+
+			calculatorViewModel.onAction(CalculatorAction.Enter)
+
+			expectNoEvents()
+		}
+	}
+
+	@Test
 	fun enteringValidNumberUpdatesStackAndClearsWorkingNumber() = runTest {
 		calculatorViewModel.uiState.test {
 			enterNumber(5)
