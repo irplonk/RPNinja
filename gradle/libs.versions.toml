@@ -41,6 +41,7 @@ androidx-core-testing = { group = "androidx.arch.core", name = "core-testing", v
 kotlin-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinTest" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 test-parameter-injector = { group = "com.google.testparameterinjector", name = "test-parameter-injector", version.ref = "testParamInjector"}
+hilt-testing = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "hilt" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

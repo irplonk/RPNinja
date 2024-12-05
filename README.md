@@ -42,8 +42,11 @@ while keeping the current position of the input and error messages, and decreasi
 UI elements as needed. I could then toggle between this layout and the portrait mode layout as I
 observe orientation changes.
 
-### No instrumented tests
-While I did add unit tests, this app doesn't contain any tests that interact with the user interface. 
+### Few instrumented tests
+This app only contains one instrumented UI test that verifies a simple addition can be performed.
+Give more time, I would add a few more to cover the essential paths. Additionally, I would create
+a model that represents elements on the CalculatorScreen to obscure some of the `onNode...` functions
+and make it reusable across UI tests.
 
 ### Localization
 While most of the strings displayed in the UI are properly stored in `strings.xml`, the decimal
