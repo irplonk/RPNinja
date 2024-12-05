@@ -37,14 +37,6 @@ class ObservableRpnStack {
 	}
 
 	/**
-	 * Takes a peak the last added number without removing it
-	 */
-	fun peak(): Double? {
-		return stack.lastOrNull()
-	}
-
-
-	/**
 	 * Removes the last added number from the stack
 	 */
 	fun remove(): Double {

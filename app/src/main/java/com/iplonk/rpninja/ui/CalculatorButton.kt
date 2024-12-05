@@ -8,8 +8,8 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.iplonk.rpninja.R
-import com.iplonk.rpninja.domain.Operator.Add
 import com.iplonk.rpninja.domain.CalculatorAction
+import com.iplonk.rpninja.domain.Operator.Add
 import com.iplonk.rpninja.domain.Operator.Divide
 import com.iplonk.rpninja.domain.Operator.Exponentiate
 import com.iplonk.rpninja.domain.Operator.Multiply
