@@ -1,8 +1,10 @@
 package com.iplonk.rpninja.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -18,7 +21,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -50,7 +55,7 @@ internal fun CalculatorScreen(
 				(placeholderStackItems + uiState.stackSnapshot).forEachIndexed { index, item ->
 					Text(
 						text = item.toString(),
-						fontSize = 32.sp,
+						fontSize = 28.sp,
 						color = MaterialTheme.colorScheme.onSurface,
 						fontWeight = if (index == MAX_STACK_ELEMENTS - 1) FontWeight.SemiBold else null
 					)
@@ -64,14 +69,15 @@ internal fun CalculatorScreen(
 					Text(
 						modifier = Modifier.fillMaxWidth(),
 						text = stringResource(error.message),
-						fontSize = 32.sp,
+						fontSize = 16.sp,
 						color = MaterialTheme.colorScheme.error,
 						fontWeight = FontWeight.Bold,
+						lineHeight = 16.sp,
 					)
 				}
 			}
 			if (uiState.workingNumber.isNotBlank()) {
-				CalculatorDisplay(uiState.workingNumber)
+				CalculatorDisplay(modifier = Modifier.weight(1f), expression = uiState.workingNumber)
 			}
 			CalculatorButtonGrid(onCalculatorButtonClick = onCalculatorButtonClick)
 		}
@@ -96,7 +102,7 @@ private fun CalculatorButtonGrid(onCalculatorButtonClick: (CalculatorAction) -> 
 				onClick = { onCalculatorButtonClick(button.action) },
 			) {
 				button.text?.let { text ->
-					Text(text = stringResource(text), fontSize = 36.sp)
+					Text(text = stringResource(text), fontSize = 32.sp)
 				} ?: run {
 					button.content()
 				}
@@ -106,20 +112,34 @@ private fun CalculatorButtonGrid(onCalculatorButtonClick: (CalculatorAction) -> 
 }
 
 @Composable
-private fun CalculatorDisplay(expression: String) {
-	BasicTextField(
-		modifier = Modifier.fillMaxWidth(),
-		value = expression,
-		onValueChange = {},
-		textStyle = TextStyle(
-			fontSize = 72.sp,
-			color = MaterialTheme.colorScheme.onSurface,
-			textAlign = TextAlign.End,
-		),
-		maxLines = 1,
-		singleLine = true,
-		readOnly = true,
-	)
+private fun CalculatorDisplay(modifier: Modifier = Modifier, expression: String) {
+	val scrollState = rememberScrollState()
+
+	// Scroll to the right-most position
+	LaunchedEffect(expression) {
+		scrollState.animateScrollTo(scrollState.maxValue)
+	}
+
+	Row(
+		modifier = Modifier
+			.fillMaxWidth()
+			.horizontalScroll(scrollState)
+			.then(modifier),
+		verticalAlignment = Alignment.CenterVertically,
+		horizontalArrangement = Arrangement.End
+	) {
+		BasicTextField(
+			value = expression,
+			onValueChange = { },
+			textStyle = TextStyle(
+				fontSize = 64.sp,
+				color = MaterialTheme.colorScheme.onSurface,
+				textAlign = TextAlign.End,
+			),
+			maxLines = 1,
+			readOnly = true,
+		)
+	}
 }
 
 @Stable

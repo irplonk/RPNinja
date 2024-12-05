@@ -109,7 +109,7 @@ class CalculatorScreenSnapshotTest(
 			TestCalculatorScreen(
 				uiState = CalculatorUiState(
 					stackSnapshot = listOf(1.0, 2.0, 3.0),
-					workingNumber = "123.45",
+					workingNumber = "123456789",
 					calculatorError = CalculatorError.UnknownOperation
 				)
 			)
