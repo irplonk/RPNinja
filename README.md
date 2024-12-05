@@ -15,8 +15,7 @@ complex equations effortlessly like a true master.
 - **Light/Dark Mode**: Switch between themes to suit your style.
 - **Minimalist & Fast**: A distraction-free experience designed for speed and efficiency.
 
-![app_light_mode.png](/screenshots/app_light_mode.png)
-![app_dark_mode.png](/screenshots/app_dark_mode.png)
+<img src="screenshots/app_dark_mode.png" alt="drawing" width="200"/> <img src="screenshots/app_light_mode.png" alt="drawing" width="200"/> 
 
 ## Technical Choices
 
