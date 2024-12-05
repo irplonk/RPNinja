@@ -12,7 +12,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(TestParameterInjector::class)
-class CalculatorScreenUiSnapshotTest(
+class CalculatorScreenSnapshotTest(
 	@TestParameter val device: Device,
 	@TestParameter val theme: Theme,
 ) {
@@ -104,7 +104,7 @@ class CalculatorScreenUiSnapshotTest(
 	}
 
 	@Test
-	fun fullUiState() {
+	fun fullCalculatorScreen() {
 		paparazzi.snapshot {
 			TestCalculatorScreen(
 				uiState = CalculatorUiState(
