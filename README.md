@@ -54,6 +54,13 @@ symbol that is displayed as user input is hardcoded within `CalculatorViewModel.
 use a comma instead of a period to represent a decimal point, so ideally this would be handled
 to fully support localization.
 
+### No persistence
+There is no persistence of the calculations outside of the ViewModel. In the case of process death,
+all of the user's data would be lost. Since the user could potentially store many values on the stack,
+ideally, this would be stored in a local database on the device like Room. From there, we could
+even add a history feature to that app that would allow the user to look through and interact with
+their previous calculations.
+
 ## How to run
 Your emulator or physical Android mobile device must be running Android 10 or above.
 
