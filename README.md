@@ -93,6 +93,3 @@ Your emulator or physical Android mobile device must be running Android 10 or ab
 
 ### From APK
 Download the APK located in the top-level directory onto your device.
-
-## Original Take Home Assignment Prompt
-https://github.com/snap-mobile/mobile-take-home-exercise
