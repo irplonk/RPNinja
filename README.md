@@ -1,9 +1,9 @@
 # RPNinja: The Calculator with a Black Belt in Efficiency! 🥷💥
 
 ## Description
-Unlock the power of Reverse Polish Notation with **RPNinja**, the sleek RPN calculator
-(coming soon to Google Play). Forget the hassle of parentheses and order of operations.
-With RPNinja, you can chain operations and solve complex equations effortlessly like a true master.
+Unlock the power of Reverse Polish Notation with **RPNinja**, the sleek RPN calculator. Forget the 
+hassle of parentheses and order of operations. With RPNinja, you can chain operations and solve
+complex equations effortlessly like a true master.
 
 ### Features
 - **Keypad**: Everything you need for daily calculations:
@@ -15,10 +15,31 @@ With RPNinja, you can chain operations and solve complex equations effortlessly 
 - **Light/Dark Mode**: Switch between themes to suit your style.
 - **Minimalist & Fast**: A distraction-free experience designed for speed and efficiency.
 
-## Technical Choices (WIP)
-Reasoning behind your technical choices, including architectural
+## Technical Choices
 
-## Trade-offs (WIP)
+### Architecture
+I chose MVVM as the architecture because it helps separate concerns and is easy to test.
+The ViewModel handles all of the business logic and provides a UI state which is observed by the View
+and transformed into UI elements.
+
+### UI framework
+I chose Jetpack Compose as the UI framework because it is responsive, flexible, and easy to set up.
+
+### State management
+I chose Flow to manage the state of the UI because it works nicely with coroutines. I avoided storing
+state in the UI layer.
+
+### Dependency Injection
+Dependency injection makes an app more modular and easier to test. I chose Hilt as the dependency
+injection library because it is easier to set up and works nicely with Android.
+
+### Testing Strategy
+I followed the pyramid testing approach when writing the tests for this app. I wrote unit tests
+for all classes containing business logic using JUnit and Mockk. Then, I wrote some snapshot tests
+for the UI using Paparazzi. Lastly, I wrote an instrumented test using the testing framework provided
+by Jetpack Compose.
+
+## Trade-offs
 
 Here are some trade-offs I made for the sake of time.
 
