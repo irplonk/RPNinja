@@ -6,7 +6,7 @@ import com.iplonk.rpninja.domain.Operator.Divide
 import com.iplonk.rpninja.domain.Operator.Exponentiate
 import com.iplonk.rpninja.domain.Operator.Negate
 import com.iplonk.rpninja.domain.Operator.Subtract
-import com.iplonk.rpninja.ui.CalculatorError
+import com.iplonk.rpninja.presentation.CalculatorError
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertNull

@@ -1,4 +1,4 @@
-package com.iplonk.rpninja.ui
+package com.iplonk.rpninja.presentation
 
 import androidx.annotation.StringRes
 import com.iplonk.rpninja.R
@@ -17,6 +17,9 @@ data class CalculatorUiState(
 	val calculatorError: CalculatorError? = null,
 )
 
+/**
+ * Represents all of the potential errors that can occur on the main calculator screen
+ */
 sealed class CalculatorError(@StringRes val message: Int) {
 	data object DivideByZero : CalculatorError(R.string.divide_by_zero_error_message)
 	data object InsufficientOperands : CalculatorError(R.string.insufficient_operands_message)

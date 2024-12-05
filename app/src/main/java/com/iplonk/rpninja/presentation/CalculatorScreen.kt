@@ -1,4 +1,4 @@
-package com.iplonk.rpninja.ui
+package com.iplonk.rpninja.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -26,18 +26,22 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.iplonk.rpninja.domain.CalculatorAction
-import com.iplonk.rpninja.ui.CalculatorPadState.BUTTONS_PER_ROW
-import com.iplonk.rpninja.ui.CalculatorPadState.MAX_STACK_ELEMENTS
-import com.iplonk.rpninja.ui.CalculatorPadState.backgroundColor
-import com.iplonk.rpninja.ui.CalculatorPadState.contentColor
+import com.iplonk.rpninja.presentation.CalculatorPadState.backgroundColor
+import com.iplonk.rpninja.presentation.CalculatorPadState.contentColor
+import kotlin.math.exp
 
-
+/**
+ * The UI for the entire calculator screen, responsible for rendering the stack, calculator display,
+ * and keypad as well as any error messages
+ */
 @Composable
 internal fun CalculatorScreen(
 	uiState: CalculatorUiState,
@@ -50,30 +54,15 @@ internal fun CalculatorScreen(
 			.padding(8.dp)
 	) {
 		Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
-			val placeholderStackItems = List(MAX_STACK_ELEMENTS - uiState.stackSnapshot.size) { 0.0 }
 			Column {
-				(placeholderStackItems + uiState.stackSnapshot).forEachIndexed { index, item ->
-					Text(
-						text = item.toString(),
-						fontSize = 28.sp,
-						color = MaterialTheme.colorScheme.onSurface,
-						fontWeight = if (index == MAX_STACK_ELEMENTS - 1) FontWeight.SemiBold else null
-					)
-				}
+				CalculatorStack(uiState.stackSnapshot)
 				HorizontalDivider(
 					modifier = Modifier.padding(vertical = 4.dp),
 					thickness = 1.dp,
 					color = MaterialTheme.colorScheme.onSurface
 				)
 				uiState.calculatorError?.let { error ->
-					Text(
-						modifier = Modifier.fillMaxWidth(),
-						text = stringResource(error.message),
-						fontSize = 16.sp,
-						color = MaterialTheme.colorScheme.error,
-						fontWeight = FontWeight.Bold,
-						lineHeight = 16.sp,
-					)
+					CalculatorErrorMessage(error)
 				}
 			}
 			if (uiState.workingNumber.isNotBlank()) {
@@ -84,10 +73,46 @@ internal fun CalculatorScreen(
 	}
 }
 
+/**
+ * Represents an error message that is displayed to the user
+ */
+@Composable
+private fun CalculatorErrorMessage(error: CalculatorError) {
+	Text(
+		modifier = Modifier.fillMaxWidth(),
+		text = stringResource(error.message),
+		fontSize = 16.sp,
+		color = MaterialTheme.colorScheme.error,
+		fontWeight = FontWeight.Bold,
+		lineHeight = 16.sp,
+	)
+}
+
+/**
+ * Represents the last [CalculatorPadState.MAX_STACK_SIZE] stack of numbers that the user has entered
+ * Displays them from least recently entered (top) to most recently entered (bottom) with placeholders
+ * if the stack is not full.
+ */
+@Composable
+private fun CalculatorStack(stackSnapshot: List<Double>) {
+	val placeholderStackItems = List(CalculatorPadState.MAX_STACK_SIZE - stackSnapshot.size) { 0.0 }
+	(placeholderStackItems + stackSnapshot).forEachIndexed { index, item ->
+		Text(
+			text = item.toString(),
+			fontSize = 28.sp,
+			color = MaterialTheme.colorScheme.onSurface,
+			fontWeight = if (index == CalculatorPadState.MAX_STACK_SIZE - 1) FontWeight.SemiBold else null
+		)
+	}
+}
+
+/**
+ * Represents the keypad of the calculator
+ */
 @Composable
 private fun CalculatorButtonGrid(onCalculatorButtonClick: (CalculatorAction) -> Unit) {
 	LazyVerticalGrid(
-		columns = GridCells.Fixed(count = BUTTONS_PER_ROW),
+		columns = GridCells.Fixed(count = CalculatorPadState.BUTTONS_PER_ROW),
 		userScrollEnabled = false,
 		verticalArrangement = Arrangement.spacedBy(4.dp),
 		horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -111,18 +136,19 @@ private fun CalculatorButtonGrid(onCalculatorButtonClick: (CalculatorAction) -> 
 	}
 }
 
+/**
+ * Represents the user input. Scrollable to handle large numbers.
+ */
 @Composable
-private fun CalculatorDisplay(modifier: Modifier = Modifier, expression: String) {
+internal fun CalculatorDisplay(modifier: Modifier = Modifier, expression: String) {
 	val scrollState = rememberScrollState()
 
-	// Scroll to the right-most position
 	LaunchedEffect(expression) {
-		scrollState.animateScrollTo(scrollState.maxValue)
+		scrollState.animateScrollTo(scrollState.maxValue) // Scroll to the right-most position
 	}
 
 	Row(
 		modifier = Modifier
-			.fillMaxWidth()
 			.horizontalScroll(scrollState)
 			.then(modifier),
 		verticalAlignment = Alignment.CenterVertically,
@@ -145,7 +171,7 @@ private fun CalculatorDisplay(modifier: Modifier = Modifier, expression: String)
 @Stable
 object CalculatorPadState {
 	const val BUTTONS_PER_ROW = 4
-	const val MAX_STACK_ELEMENTS = 3
+	const val MAX_STACK_SIZE = 3
 
 	val CalculatorButton.backgroundColor
 		@Composable

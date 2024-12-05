@@ -6,8 +6,8 @@ import com.iplonk.rpninja.domain.Operator.BinaryOperator
 import com.iplonk.rpninja.domain.Operator.Divide
 import com.iplonk.rpninja.domain.Operator.Negate
 import com.iplonk.rpninja.domain.Operator.UnaryOperator
-import com.iplonk.rpninja.ui.CalculatorError
-import com.iplonk.rpninja.ui.CalculatorUiState
+import com.iplonk.rpninja.presentation.CalculatorError
+import com.iplonk.rpninja.presentation.CalculatorUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -74,7 +74,7 @@ class CalculatorViewModel @Inject constructor() : ViewModel() {
 
 	private fun onEnter() {
 		val currentWorkingNumber = _workingNumber.value
-		if (currentWorkingNumber.isBlank()) return // No action for blank input
+		if (currentWorkingNumber.isBlank()) return // We don't take any action when the input is blank
 
 		currentWorkingNumber.toDoubleOrNull()?.let { number ->
 			observableStack.add(currentWorkingNumber.toDouble())

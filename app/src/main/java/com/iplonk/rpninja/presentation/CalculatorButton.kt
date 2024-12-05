@@ -1,4 +1,4 @@
-package com.iplonk.rpninja.ui
+package com.iplonk.rpninja.presentation
 
 import androidx.annotation.StringRes
 import androidx.compose.material3.Icon
